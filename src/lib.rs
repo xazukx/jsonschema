@@ -158,7 +158,7 @@ impl Schemas {
         }
     }
 
-    fn get(&self, idx: SchemaIndex) -> &Schema {
+    pub fn get(&self, idx: SchemaIndex) -> &Schema {
         &self.list[idx.0] // todo: return bug
     }
 
@@ -196,110 +196,110 @@ impl Schemas {
 }
 
 #[derive(Default)]
-struct Schema {
-    draft_version: usize,
-    idx: SchemaIndex,
-    loc: String,
-    resource: SchemaIndex,
-    dynamic_anchors: HashMap<String, SchemaIndex>,
-    all_props_evaluated: bool,
-    all_items_evaluated: bool,
-    num_items_evaluated: usize,
+pub struct Schema {
+    pub draft_version: usize,
+    pub idx: SchemaIndex,
+    pub loc: String,
+    pub resource: SchemaIndex,
+    pub dynamic_anchors: HashMap<String, SchemaIndex>,
+    pub all_props_evaluated: bool,
+    pub all_items_evaluated: bool,
+    pub num_items_evaluated: usize,
 
     // type agnostic --
-    boolean: Option<bool>, // boolean schema
-    ref_: Option<SchemaIndex>,
-    recursive_ref: Option<SchemaIndex>,
-    recursive_anchor: bool,
-    dynamic_ref: Option<DynamicRef>,
-    dynamic_anchor: Option<String>,
-    types: Types,
-    enum_: Option<Enum>,
-    constant: Option<Value>,
-    not: Option<SchemaIndex>,
-    all_of: Vec<SchemaIndex>,
-    any_of: Vec<SchemaIndex>,
-    one_of: Vec<SchemaIndex>,
-    if_: Option<SchemaIndex>,
-    then: Option<SchemaIndex>,
-    else_: Option<SchemaIndex>,
-    format: Option<Format>,
+    pub boolean: Option<bool>, // boolean schema
+    pub ref_: Option<SchemaIndex>,
+    pub recursive_ref: Option<SchemaIndex>,
+    pub recursive_anchor: bool,
+    pub dynamic_ref: Option<DynamicRef>,
+    pub dynamic_anchor: Option<String>,
+    pub types: Types,
+    pub enum_: Option<Enum>,
+    pub constant: Option<Value>,
+    pub not: Option<SchemaIndex>,
+    pub all_of: Vec<SchemaIndex>,
+    pub any_of: Vec<SchemaIndex>,
+    pub one_of: Vec<SchemaIndex>,
+    pub if_: Option<SchemaIndex>,
+    pub then: Option<SchemaIndex>,
+    pub else_: Option<SchemaIndex>,
+    pub format: Option<Format>,
 
     // object --
-    min_properties: Option<usize>,
-    max_properties: Option<usize>,
-    required: Vec<String>,
-    properties: AHashMap<String, SchemaIndex>,
-    pattern_properties: Vec<(Regex, SchemaIndex)>,
-    property_names: Option<SchemaIndex>,
-    additional_properties: Option<Additional>,
-    dependent_required: Vec<(String, Vec<String>)>,
-    dependent_schemas: Vec<(String, SchemaIndex)>,
-    dependencies: Vec<(String, Dependency)>,
-    unevaluated_properties: Option<SchemaIndex>,
+    pub min_properties: Option<usize>,
+    pub max_properties: Option<usize>,
+    pub required: Vec<String>,
+    pub properties: AHashMap<String, SchemaIndex>,
+    pub pattern_properties: Vec<(Regex, SchemaIndex)>,
+    pub property_names: Option<SchemaIndex>,
+    pub additional_properties: Option<Additional>,
+    pub dependent_required: Vec<(String, Vec<String>)>,
+    pub dependent_schemas: Vec<(String, SchemaIndex)>,
+    pub dependencies: Vec<(String, Dependency)>,
+    pub unevaluated_properties: Option<SchemaIndex>,
 
     // array --
-    min_items: Option<usize>,
-    max_items: Option<usize>,
-    unique_items: bool,
-    min_contains: Option<usize>,
-    max_contains: Option<usize>,
-    contains: Option<SchemaIndex>,
-    items: Option<Items>,
-    additional_items: Option<Additional>,
-    prefix_items: Vec<SchemaIndex>,
-    items2020: Option<SchemaIndex>,
-    unevaluated_items: Option<SchemaIndex>,
+    pub min_items: Option<usize>,
+    pub max_items: Option<usize>,
+    pub unique_items: bool,
+    pub min_contains: Option<usize>,
+    pub max_contains: Option<usize>,
+    pub contains: Option<SchemaIndex>,
+    pub items: Option<Items>,
+    pub additional_items: Option<Additional>,
+    pub prefix_items: Vec<SchemaIndex>,
+    pub items2020: Option<SchemaIndex>,
+    pub unevaluated_items: Option<SchemaIndex>,
 
     // string --
-    min_length: Option<usize>,
-    max_length: Option<usize>,
-    pattern: Option<Regex>,
-    content_encoding: Option<Decoder>,
-    content_media_type: Option<MediaType>,
-    content_schema: Option<SchemaIndex>,
+    pub min_length: Option<usize>,
+    pub max_length: Option<usize>,
+    pub pattern: Option<Regex>,
+    pub content_encoding: Option<Decoder>,
+    pub content_media_type: Option<MediaType>,
+    pub content_schema: Option<SchemaIndex>,
 
     // number --
-    minimum: Option<Number>,
-    maximum: Option<Number>,
-    exclusive_minimum: Option<Number>,
-    exclusive_maximum: Option<Number>,
-    multiple_of: Option<Number>,
+    pub minimum: Option<Number>,
+    pub maximum: Option<Number>,
+    pub exclusive_minimum: Option<Number>,
+    pub exclusive_maximum: Option<Number>,
+    pub multiple_of: Option<Number>,
 }
 
 #[derive(Debug)]
-struct Enum {
+pub struct Enum {
     /// types that occur in enum
-    types: Types,
+    pub types: Types,
     /// values in enum
-    values: Vec<Value>,
+    pub values: Vec<Value>,
 }
 
 #[derive(Debug)]
-enum Items {
+pub enum Items {
     SchemaRef(SchemaIndex),
     SchemaRefs(Vec<SchemaIndex>),
 }
 
 #[derive(Debug)]
-enum Additional {
+pub enum Additional {
     Bool(bool),
     SchemaRef(SchemaIndex),
 }
 
 #[derive(Debug)]
-enum Dependency {
+pub enum Dependency {
     Props(Vec<String>),
     SchemaRef(SchemaIndex),
 }
 
-struct DynamicRef {
-    sch: SchemaIndex,
-    anchor: Option<String>,
+pub struct DynamicRef {
+    pub sch: SchemaIndex,
+    pub anchor: Option<String>,
 }
 
 impl Schema {
-    fn new(loc: String) -> Self {
+    pub fn new(loc: String) -> Self {
         Self {
             loc,
             ..Default::default()
@@ -320,7 +320,7 @@ pub enum Type {
 }
 
 impl Type {
-    fn of(v: &Value) -> Self {
+    pub fn of(v: &Value) -> Self {
         match v {
             Value::Null => Type::Null,
             Value::Bool(_) => Type::Boolean,
@@ -331,7 +331,7 @@ impl Type {
         }
     }
 
-    fn from_str(value: &str) -> Option<Self> {
+    pub fn from_str(value: &str) -> Option<Self> {
         match value {
             "null" => Some(Self::Null),
             "boolean" => Some(Self::Boolean),
@@ -344,7 +344,7 @@ impl Type {
         }
     }
 
-    fn primitive(v: &Value) -> bool {
+    pub fn primitive(v: &Value) -> bool {
         !matches!(Self::of(v), Self::Array | Self::Object)
     }
 }

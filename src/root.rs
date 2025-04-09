@@ -42,7 +42,7 @@ impl Root {
         })
     }
 
-    pub(crate) fn resolve_fragment(&self, frag: &Fragment) -> Result<UrlPtr, CompileError> {
+    pub fn resolve_fragment(&self, frag: &Fragment) -> Result<UrlPtr, CompileError> {
         let res = self.resources.get("").ok_or(CompileError::Bug(
             format!("no root resource found for {}", self.url).into(),
         ))?;

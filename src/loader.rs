@@ -73,7 +73,7 @@ impl UrlLoader for SchemeUrlLoader {
 
 // --
 
-pub(crate) struct DefaultUrlLoader {
+pub struct DefaultUrlLoader {
     doc_map: RefCell<HashMap<Url, usize>>,
     doc_list: AppendList<Value>,
     loader: Box<dyn UrlLoader>,

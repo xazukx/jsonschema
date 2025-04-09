@@ -15,10 +15,10 @@ use crate::CompileError;
 // --
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub(crate) struct JsonPointer(pub(crate) String);
+pub struct JsonPointer(pub String);
 
 impl JsonPointer {
-    pub(crate) fn escape(token: &str) -> Cow<str> {
+    pub fn escape(token: &str) -> Cow<str> {
         const SPECIAL: [char; 2] = ['~', '/'];
         if token.contains(SPECIAL) {
             token.replace('~', "~0").replace('/', "~1").into()
@@ -27,7 +27,7 @@ impl JsonPointer {
         }
     }
 
-    pub(crate) fn unescape(mut tok: &str) -> Result<Cow<str>, ()> {
+    pub fn unescape(mut tok: &str) -> Result<Cow<str>, ()> {
         let Some(mut tilde) = tok.find('~') else {
             return Ok(Cow::Borrowed(tok));
         };
@@ -50,7 +50,7 @@ impl JsonPointer {
         Ok(Cow::Owned(s))
     }
 
-    pub(crate) fn lookup<'a>(
+    pub fn lookup<'a>(
         &self,
         mut v: &'a Value,
         v_url: &Url,
@@ -83,23 +83,23 @@ impl JsonPointer {
         Ok(v)
     }
 
-    pub(crate) fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         &self.0
     }
 
-    pub(crate) fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
-    pub(crate) fn concat(&self, next: &Self) -> Self {
+    pub fn concat(&self, next: &Self) -> Self {
         JsonPointer(format!("{}{}", self.0, next.0))
     }
 
-    pub(crate) fn append(&self, tok: &str) -> Self {
+    pub fn append(&self, tok: &str) -> Self {
         Self(format!("{}/{}", self, Self::escape(tok)))
     }
 
-    pub(crate) fn append2(&self, tok1: &str, tok2: &str) -> Self {
+    pub fn append2(&self, tok1: &str, tok2: &str) -> Self {
         Self(format!(
             "{}/{}/{}",
             self,
@@ -130,7 +130,7 @@ impl From<&str> for JsonPointer {
 // --
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub(crate) struct Anchor(pub(crate) String);
+pub struct Anchor(pub String);
 
 impl Display for Anchor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -152,7 +152,7 @@ impl From<&str> for Anchor {
 
 // --
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub(crate) enum Fragment {
+pub enum Fragment {
     Anchor(Anchor),
     JsonPointer(JsonPointer),
 }
@@ -198,13 +198,13 @@ impl Fragment {
 // --
 
 #[derive(Clone)]
-pub(crate) struct UrlFrag {
+pub struct UrlFrag {
     pub(crate) url: Url,
     pub(crate) frag: Fragment,
 }
 
 impl UrlFrag {
-    pub(crate) fn absolute(input: &str) -> Result<UrlFrag, CompileError> {
+    pub fn absolute(input: &str) -> Result<UrlFrag, CompileError> {
         let (u, frag) = Fragment::split(input)?;
 
         // note: windows drive letter is treated as url scheme by url parser
@@ -235,7 +235,7 @@ impl UrlFrag {
         }
     }
 
-    pub(crate) fn join(url: &Url, input: &str) -> Result<UrlFrag, CompileError> {
+    pub fn join(url: &Url, input: &str) -> Result<UrlFrag, CompileError> {
         let (input, frag) = Fragment::split(input)?;
         if input.is_empty() {
             return Ok(UrlFrag {
@@ -251,7 +251,7 @@ impl UrlFrag {
         Ok(UrlFrag { url, frag })
     }
 
-    pub(crate) fn format(url: &Url, frag: &str) -> String {
+    pub fn format(url: &Url, frag: &str) -> String {
         if frag.is_empty() {
             url.to_string()
         } else {
@@ -269,17 +269,17 @@ impl Display for UrlFrag {
 // --
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub(crate) struct UrlPtr {
+pub struct UrlPtr {
     pub(crate) url: Url,
     pub(crate) ptr: JsonPointer,
 }
 
 impl UrlPtr {
-    pub(crate) fn lookup<'a>(&self, doc: &'a Value) -> Result<&'a Value, CompileError> {
+    pub fn lookup<'a>(&self, doc: &'a Value) -> Result<&'a Value, CompileError> {
         self.ptr.lookup(doc, &self.url)
     }
 
-    pub(crate) fn format(&self, tok: &str) -> String {
+    pub fn format(&self, tok: &str) -> String {
         format!(
             "{}#{}/{}",
             self.url,
