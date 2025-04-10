@@ -13,9 +13,9 @@ impl SchemaArray {
     
     pub fn push<F>(&mut self, build: F)
     where
-        F: FnOnce(&mut Builder),
+        F: FnOnce(&mut JsonSchemaBuilder),
     {
-        self.items.push(Builder::build(build).into_json())
+        self.items.push(JsonSchemaBuilder::build(build).into_json())
     }
 }
 
@@ -32,10 +32,10 @@ impl SchemaHash {
     
     pub fn insert<F>(&mut self, key: &str, build: F)
     where
-        F: FnOnce(&mut Builder),
+        F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.items
-            .insert(key.to_string(), Builder::build(build).into_json());
+            .insert(key.to_string(), JsonSchemaBuilder::build(build).into_json());
     }
 }
 
@@ -52,11 +52,11 @@ impl Dependencies {
     
     pub fn schema<F>(&mut self, property: &str, build: F)
     where
-        F: FnOnce(&mut Builder),
+        F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.deps.insert(
             property.to_string(),
-            Dependency::Schema(Builder::build(build).into_json()),
+            Dependency::Schema(JsonSchemaBuilder::build(build).into_json()),
         );
     }
     
@@ -128,13 +128,13 @@ impl PrimitiveType {
 /// Builder provides simple DSL to build Schema. It allows you not to use
 /// strings and raw JSON manipulation. It also prevent some kinds of spelling
 /// and type errors.
-pub struct Builder {
+pub struct JsonSchemaBuilder {
     obj_builder: jsonway::ObjectBuilder,
 }
 
-impl Builder {
-    pub fn new() -> Builder {
-        Builder {
+impl JsonSchemaBuilder {
+    pub fn new() -> Self {
+        Self {
             obj_builder: jsonway::ObjectBuilder::new(),
         }
     }
@@ -217,10 +217,10 @@ impl Builder {
     
     pub fn items_schema<F>(&mut self, build: F)
     where
-        F: FnOnce(&mut Builder),
+        F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("items", Builder::build(build).into_json())
+            .set("items", JsonSchemaBuilder::build(build).into_json())
     }
     
     pub fn items_array<F>(&mut self, build: F)
@@ -238,10 +238,10 @@ impl Builder {
     
     pub fn additional_items_schema<F>(&mut self, build: F)
     where
-        F: FnOnce(&mut Builder),
+        F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("additionalItems", Builder::build(build).into_json())
+            .set("additionalItems", JsonSchemaBuilder::build(build).into_json())
     }
     
     pub fn max_items(&mut self, number: u64) {
@@ -292,10 +292,10 @@ impl Builder {
     
     pub fn additional_properties_schema<F>(&mut self, build: F)
     where
-        F: FnOnce(&mut Builder),
+        F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("additionalProperties", Builder::build(build).into_json())
+            .set("additionalProperties", JsonSchemaBuilder::build(build).into_json())
     }
     
     pub fn dependencies<F>(&mut self, build: F)
@@ -380,17 +380,17 @@ impl Builder {
     
     pub fn not<F>(&mut self, build: F)
     where
-        F: FnOnce(&mut Builder),
+        F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("not", Builder::build(build).into_json())
+            .set("not", JsonSchemaBuilder::build(build).into_json())
     }
     
-    pub fn build<F>(build: F) -> Builder
+    pub fn build<F>(build: F) -> JsonSchemaBuilder
     where
-        F: FnOnce(&mut Builder),
+        F: FnOnce(&mut JsonSchemaBuilder),
     {
-        let mut builder = Builder::new();
+        let mut builder = JsonSchemaBuilder::new();
         build(&mut builder);
         builder
     }
@@ -409,26 +409,26 @@ impl Builder {
     
     pub fn if_<F>(&mut self, build: F)
     where
-        F: FnOnce(&mut Builder),
+        F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("if", Builder::build(build).into_json())
+            .set("if", JsonSchemaBuilder::build(build).into_json())
     }
     
     pub fn then_<F>(&mut self, build: F)
     where
-        F: FnOnce(&mut Builder),
+        F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("then", Builder::build(build).into_json())
+            .set("then", JsonSchemaBuilder::build(build).into_json())
     }
     
     pub fn else_<F>(&mut self, build: F)
     where
-        F: FnOnce(&mut Builder),
+        F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("else", Builder::build(build).into_json())
+            .set("else", JsonSchemaBuilder::build(build).into_json())
     }
     
     pub fn custom_vocabulary<V: Serialize, N: Into<String>>(&mut self, name: N, value: V) {
@@ -436,7 +436,7 @@ impl Builder {
     }
 }
 
-impl Serialize for Builder {
+impl Serialize for JsonSchemaBuilder {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -445,15 +445,15 @@ impl Serialize for Builder {
     }
 }
 
-pub fn schema<F>(build: F) -> Builder
+pub fn json_schema<F>(build: F) -> JsonSchemaBuilder
 where
-    F: FnOnce(&mut Builder),
+    F: FnOnce(&mut JsonSchemaBuilder),
 {
-    Builder::build(build)
+    JsonSchemaBuilder::build(build)
 }
 
-pub fn schema_box(build: Box<dyn Fn(&mut Builder) + Send>) -> Builder {
-    let mut builder = Builder::new();
+pub fn json_schema_box(build: Box<dyn Fn(&mut JsonSchemaBuilder) + Send>) -> JsonSchemaBuilder {
+    let mut builder = JsonSchemaBuilder::new();
     build(&mut builder);
     builder
 }
