@@ -15,7 +15,7 @@ impl SchemaArray {
     where
         F: FnOnce(&mut JsonSchemaBuilder),
     {
-        self.items.push(JsonSchemaBuilder::build(build).into_json())
+        self.items.push(JsonSchemaBuilder::build(build).finalize())
     }
 }
 
@@ -35,7 +35,7 @@ impl SchemaHash {
         F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.items
-            .insert(key.to_string(), JsonSchemaBuilder::build(build).into_json());
+            .insert(key.to_string(), JsonSchemaBuilder::build(build).finalize());
     }
 }
 
@@ -56,7 +56,7 @@ impl Dependencies {
     {
         self.deps.insert(
             property.to_string(),
-            Dependency::Schema(JsonSchemaBuilder::build(build).into_json()),
+            Dependency::Schema(JsonSchemaBuilder::build(build).finalize()),
         );
     }
     
@@ -137,6 +137,24 @@ impl JsonSchemaBuilder {
         Self {
             obj_builder: jsonway::ObjectBuilder::new(),
         }
+    }
+    
+    pub fn build<F>(build: F) -> JsonSchemaBuilder
+    where
+        F: FnOnce(&mut JsonSchemaBuilder),
+    {
+        let mut builder = JsonSchemaBuilder::new();
+        build(&mut builder);
+        builder
+    }
+    
+    #[inline(always)]
+    pub fn to_json(self) -> Value {
+        self.obj_builder.unwrap()
+    }
+    
+    pub fn finalize(self) -> Value {
+        self.to_json()
     }
     
     pub fn id(&mut self, url: &str) {
@@ -220,7 +238,7 @@ impl JsonSchemaBuilder {
         F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("items", JsonSchemaBuilder::build(build).into_json())
+            .set("items", JsonSchemaBuilder::build(build).finalize())
     }
     
     pub fn items_array<F>(&mut self, build: F)
@@ -241,7 +259,7 @@ impl JsonSchemaBuilder {
         F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("additionalItems", JsonSchemaBuilder::build(build).into_json())
+            .set("additionalItems", JsonSchemaBuilder::build(build).finalize())
     }
     
     pub fn max_items(&mut self, number: u64) {
@@ -295,7 +313,7 @@ impl JsonSchemaBuilder {
         F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("additionalProperties", JsonSchemaBuilder::build(build).into_json())
+            .set("additionalProperties", JsonSchemaBuilder::build(build).finalize())
     }
     
     pub fn dependencies<F>(&mut self, build: F)
@@ -383,20 +401,7 @@ impl JsonSchemaBuilder {
         F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("not", JsonSchemaBuilder::build(build).into_json())
-    }
-    
-    pub fn build<F>(build: F) -> JsonSchemaBuilder
-    where
-        F: FnOnce(&mut JsonSchemaBuilder),
-    {
-        let mut builder = JsonSchemaBuilder::new();
-        build(&mut builder);
-        builder
-    }
-    
-    pub fn into_json(self) -> Value {
-        self.obj_builder.unwrap()
+            .set("not", JsonSchemaBuilder::build(build).finalize())
     }
     
     pub fn content_media_type(&mut self, type_: String) {
@@ -412,7 +417,7 @@ impl JsonSchemaBuilder {
         F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("if", JsonSchemaBuilder::build(build).into_json())
+            .set("if", JsonSchemaBuilder::build(build).finalize())
     }
     
     pub fn then_<F>(&mut self, build: F)
@@ -420,7 +425,7 @@ impl JsonSchemaBuilder {
         F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("then", JsonSchemaBuilder::build(build).into_json())
+            .set("then", JsonSchemaBuilder::build(build).finalize())
     }
     
     pub fn else_<F>(&mut self, build: F)
@@ -428,7 +433,7 @@ impl JsonSchemaBuilder {
         F: FnOnce(&mut JsonSchemaBuilder),
     {
         self.obj_builder
-            .set("else", JsonSchemaBuilder::build(build).into_json())
+            .set("else", JsonSchemaBuilder::build(build).finalize())
     }
     
     pub fn custom_vocabulary<V: Serialize, N: Into<String>>(&mut self, name: N, value: V) {
