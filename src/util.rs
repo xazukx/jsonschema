@@ -158,7 +158,7 @@ pub enum Fragment {
 }
 
 impl Fragment {
-    pub(crate) fn split(s: &str) -> Result<(&str, Fragment), CompileError> {
+    pub fn split(s: &str) -> Result<(&str, Fragment), CompileError> {
         let (u, frag) = split(s);
         let frag = percent_decode_str(frag)
             .decode_utf8()
@@ -175,7 +175,7 @@ impl Fragment {
         Ok((u, frag))
     }
 
-    pub(crate) fn encode(frag: &str) -> String {
+    pub fn encode(frag: &str) -> String {
         // https://url.spec.whatwg.org/#fragment-percent-encode-set
         const FRAGMENT: &AsciiSet = &CONTROLS
             .add(b'%')
@@ -187,7 +187,7 @@ impl Fragment {
         percent_encoding::utf8_percent_encode(frag, FRAGMENT).to_string()
     }
 
-    pub(crate) fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         match self {
             Fragment::Anchor(s) => &s.0,
             Fragment::JsonPointer(s) => &s.0,

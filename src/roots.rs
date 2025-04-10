@@ -7,10 +7,10 @@ use url::Url;
 
 // --
 
-pub(crate) struct Roots {
-    pub(crate) default_draft: &'static Draft,
+pub struct Roots {
+    pub default_draft: &'static Draft,
     map: HashMap<Url, Root>,
-    pub(crate) loader: DefaultUrlLoader,
+    pub loader: DefaultUrlLoader,
 }
 
 impl Roots {
@@ -30,11 +30,11 @@ impl Default for Roots {
 }
 
 impl Roots {
-    pub(crate) fn get(&self, url: &Url) -> Option<&Root> {
+    pub fn get(&self, url: &Url) -> Option<&Root> {
         self.map.get(url)
     }
 
-    pub(crate) fn resolve_fragment(&mut self, uf: UrlFrag) -> Result<UrlPtr, CompileError> {
+    pub fn resolve_fragment(&mut self, uf: UrlFrag) -> Result<UrlPtr, CompileError> {
         self.or_load(uf.url.clone())?;
         let Some(root) = self.map.get(&uf.url) else {
             return Err(CompileError::Bug("or_load didn't add".into()));
@@ -42,7 +42,7 @@ impl Roots {
         root.resolve_fragment(&uf.frag)
     }
 
-    pub(crate) fn ensure_subschema(&mut self, up: &UrlPtr) -> Result<(), CompileError> {
+    pub fn ensure_subschema(&mut self, up: &UrlPtr) -> Result<(), CompileError> {
         self.or_load(up.url.clone())?;
         let Some(root) = self.map.get_mut(&up.url) else {
             return Err(CompileError::Bug("or_load didn't add".into()));
@@ -56,7 +56,7 @@ impl Roots {
         Ok(())
     }
 
-    pub(crate) fn or_load(&mut self, url: Url) -> Result<(), CompileError> {
+    pub fn or_load(&mut self, url: Url) -> Result<(), CompileError> {
         debug_assert!(url.fragment().is_none(), "trying to add root with fragment");
         if self.map.contains_key(&url) {
             return Ok(());
@@ -67,7 +67,7 @@ impl Roots {
         Ok(())
     }
 
-    pub(crate) fn create_root(&self, url: Url, doc: &Value) -> Result<Root, CompileError> {
+    pub fn create_root(&self, url: Url, doc: &Value) -> Result<Root, CompileError> {
         let draft = {
             let up = UrlPtr {
                 url: url.clone(),
@@ -101,7 +101,7 @@ impl Roots {
         })
     }
 
-    pub(crate) fn insert(&mut self, roots: &mut HashMap<Url, Root>) {
+    pub fn insert(&mut self, roots: &mut HashMap<Url, Root>) {
         self.map.extend(roots.drain());
     }
 }

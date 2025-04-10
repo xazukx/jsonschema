@@ -5,15 +5,15 @@ use crate::{compiler::CompileError, draft::*, util::*};
 use serde_json::Value;
 use url::Url;
 
-pub(crate) struct Root {
-    pub(crate) draft: &'static Draft,
-    pub(crate) resources: HashMap<JsonPointer, Resource>, // ptr => _
-    pub(crate) url: Url,
-    pub(crate) meta_vocabs: Option<Vec<String>>,
+pub struct Root {
+    pub draft: &'static Draft,
+    pub resources: HashMap<JsonPointer, Resource>, // ptr => _
+    pub url: Url,
+    pub meta_vocabs: Option<Vec<String>>,
 }
 
 impl Root {
-    pub(crate) fn has_vocab(&self, name: &str) -> bool {
+    pub fn has_vocab(&self, name: &str) -> bool {
         if self.draft.version < 2019 || name == "core" {
             return true;
         }
@@ -51,7 +51,7 @@ impl Root {
 
     // resolves `UrlFrag` to `UrlPtr` from root.
     // returns `None` if it is external.
-    pub(crate) fn resolve(&self, uf: &UrlFrag) -> Result<Option<UrlPtr>, CompileError> {
+    pub fn resolve(&self, uf: &UrlFrag) -> Result<Option<UrlPtr>, CompileError> {
         let res = {
             if uf.url == self.url {
                 self.resources.get("").ok_or(CompileError::Bug(
@@ -69,7 +69,7 @@ impl Root {
         self.resolve_fragment_in(&uf.frag, res).map(Some)
     }
 
-    pub(crate) fn resource(&self, ptr: &JsonPointer) -> &Resource {
+    pub fn resource(&self, ptr: &JsonPointer) -> &Resource {
         let mut ptr = ptr.as_str();
         loop {
             if let Some(res) = self.resources.get(ptr) {
@@ -83,11 +83,11 @@ impl Root {
         self.resources.get("").expect("root resource should exist")
     }
 
-    pub(crate) fn base_url(&self, ptr: &JsonPointer) -> &Url {
+    pub fn base_url(&self, ptr: &JsonPointer) -> &Url {
         &self.resource(ptr).id
     }
 
-    pub(crate) fn add_subschema(
+    pub fn add_subschema(
         &mut self,
         doc: &Value,
         ptr: &JsonPointer,
@@ -109,15 +109,15 @@ impl Root {
 }
 
 #[derive(Debug)]
-pub(crate) struct Resource {
-    pub(crate) ptr: JsonPointer, // from root
-    pub(crate) id: Url,
-    pub(crate) anchors: HashMap<Anchor, JsonPointer>, // anchor => ptr
-    pub(crate) dynamic_anchors: HashSet<Anchor>,
+pub struct Resource {
+    pub ptr: JsonPointer, // from root
+    pub id: Url,
+    pub anchors: HashMap<Anchor, JsonPointer>, // anchor => ptr
+    pub dynamic_anchors: HashSet<Anchor>,
 }
 
 impl Resource {
-    pub(crate) fn new(ptr: JsonPointer, id: Url) -> Self {
+    pub fn new(ptr: JsonPointer, id: Url) -> Self {
         Self {
             ptr,
             id,

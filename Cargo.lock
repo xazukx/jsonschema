@@ -125,6 +125,7 @@ dependencies = [
  "criterion",
  "fluent-uri",
  "idna",
+ "jsonway",
  "once_cell",
  "percent-encoding",
  "regex",
@@ -643,6 +644,16 @@ checksum = "6717b6b5b077764fb5966237269cb3c64edddde4b14ce42647430a78ced9e7b7"
 dependencies = [
  "once_cell",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "jsonway"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "effcb749443c905fbaef49d214f8b1049c240e0adb7af9baa0e201e625e4f9de"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

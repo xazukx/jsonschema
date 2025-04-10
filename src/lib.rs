@@ -113,6 +113,7 @@ mod root;
 mod roots;
 mod util;
 mod validator;
+mod builder;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use loader::FileLoader;
@@ -133,6 +134,7 @@ use ahash::AHashMap;
 use regex::Regex;
 use serde_json::{Number, Value};
 use util::*;
+pub use builder::*;
 
 /// Identifier to compiled schema.
 #[derive(Default, Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]

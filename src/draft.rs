@@ -13,7 +13,7 @@ const POS_SELF: u8 = 1 << 0;
 const POS_PROP: u8 = 1 << 1;
 const POS_ITEM: u8 = 1 << 2;
 
-pub(crate) static DRAFT4: Lazy<Draft> = Lazy::new(|| Draft {
+pub static DRAFT4: Lazy<Draft> = Lazy::new(|| Draft {
     version: 4,
     id: "id",
     url: "http://json-schema.org/draft-04/schema",
@@ -38,7 +38,7 @@ pub(crate) static DRAFT4: Lazy<Draft> = Lazy::new(|| Draft {
     default_vocabs: vec![],
 });
 
-pub(crate) static DRAFT6: Lazy<Draft> = Lazy::new(|| {
+pub static DRAFT6: Lazy<Draft> = Lazy::new(|| {
     let mut subschemas = DRAFT4.subschemas.clone();
     subschemas.extend([("propertyNames", POS_SELF), ("contains", POS_SELF)]);
     Draft {
@@ -52,7 +52,7 @@ pub(crate) static DRAFT6: Lazy<Draft> = Lazy::new(|| {
     }
 });
 
-pub(crate) static DRAFT7: Lazy<Draft> = Lazy::new(|| {
+pub static DRAFT7: Lazy<Draft> = Lazy::new(|| {
     let mut subschemas = DRAFT6.subschemas.clone();
     subschemas.extend([("if", POS_SELF), ("then", POS_SELF), ("else", POS_SELF)]);
     Draft {
@@ -66,7 +66,7 @@ pub(crate) static DRAFT7: Lazy<Draft> = Lazy::new(|| {
     }
 });
 
-pub(crate) static DRAFT2019: Lazy<Draft> = Lazy::new(|| {
+pub static DRAFT2019: Lazy<Draft> = Lazy::new(|| {
     let mut subschemas = DRAFT7.subschemas.clone();
     subschemas.extend([
         ("$defs", POS_PROP),
@@ -93,7 +93,7 @@ pub(crate) static DRAFT2019: Lazy<Draft> = Lazy::new(|| {
     }
 });
 
-pub(crate) static DRAFT2020: Lazy<Draft> = Lazy::new(|| {
+pub static DRAFT2020: Lazy<Draft> = Lazy::new(|| {
     let mut subschemas = DRAFT2019.subschemas.clone();
     subschemas.extend([("prefixItems", POS_ITEM)]);
     Draft {
@@ -116,27 +116,27 @@ pub(crate) static DRAFT2020: Lazy<Draft> = Lazy::new(|| {
     }
 });
 
-pub(crate) static STD_METASCHEMAS: Lazy<Schemas> =
+pub static STD_METASCHEMAS: Lazy<Schemas> =
     Lazy::new(|| load_std_metaschemas().expect("std metaschemas must be compilable"));
 
-pub(crate) fn latest() -> &'static Draft {
+pub fn latest() -> &'static Draft {
     crate::Draft::default().internal()
 }
 
 // --
 
-pub(crate) struct Draft {
-    pub(crate) version: usize,
-    pub(crate) url: &'static str,
+pub struct Draft {
+    pub version: usize,
+    pub url: &'static str,
     id: &'static str,                         // property name used to represent id
     subschemas: HashMap<&'static str, u8>,    // location of subschemas
-    pub(crate) vocab_prefix: &'static str,    // prefix used for vocabulary
-    pub(crate) all_vocabs: Vec<&'static str>, // names of supported vocabs
-    pub(crate) default_vocabs: Vec<&'static str>, // names of default vocabs
+    pub vocab_prefix: &'static str,    // prefix used for vocabulary
+    pub all_vocabs: Vec<&'static str>, // names of supported vocabs
+    pub default_vocabs: Vec<&'static str>, // names of default vocabs
 }
 
 impl Draft {
-    pub(crate) fn from_url(url: &str) -> Option<&'static Draft> {
+    pub fn from_url(url: &str) -> Option<&'static Draft> {
         let (mut url, frag) = split(url);
         if !frag.is_empty() {
             return None;
@@ -174,7 +174,7 @@ impl Draft {
         STD_METASCHEMAS.get_by_loc(&up).map(|s| s.idx)
     }
 
-    pub(crate) fn validate(&self, up: &UrlPtr, v: &Value) -> Result<(), CompileError> {
+    pub fn validate(&self, up: &UrlPtr, v: &Value) -> Result<(), CompileError> {
         let Some(sch) = self.get_schema() else {
             return Err(CompileError::Bug(
                 format!("no metaschema preloaded for draft {}", self.version).into(),
@@ -199,7 +199,7 @@ impl Draft {
         Some(id).filter(|id| !id.is_empty())
     }
 
-    pub(crate) fn get_vocabs(
+    pub fn get_vocabs(
         &self,
         url: &Url,
         doc: &Value,
@@ -236,7 +236,7 @@ impl Draft {
 
     // collects anchors/dynamic_achors from `sch` into `res`.
     // note this does not collect from subschemas in sch.
-    pub(crate) fn collect_anchors(
+    pub fn collect_anchors(
         &self,
         sch: &Value,
         sch_ptr: &JsonPointer,
@@ -297,7 +297,7 @@ impl Draft {
     }
 
     // error is json-ptr to invalid id
-    pub(crate) fn collect_resources(
+    pub fn collect_resources(
         &self,
         sch: &Value,
         base: &Url,           // base of json
@@ -384,7 +384,7 @@ impl Draft {
         Ok(())
     }
 
-    pub(crate) fn is_subschema(&self, ptr: &str) -> bool {
+    pub fn is_subschema(&self, ptr: &str) -> bool {
         if ptr.is_empty() {
             return true;
         }
